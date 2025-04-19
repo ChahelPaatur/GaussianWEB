@@ -95,16 +95,14 @@ const FeatureDescription = styled.p`
 
 const Features = () => {
   const featureVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: i => ({
+    hidden: { opacity: 0 },
+    visible: {
       opacity: 1,
-      y: 0,
       transition: {
-        delay: i * 0.1,
         duration: 0.5,
         ease: "easeOut"
       }
-    })
+    }
   };
 
   const features = [
@@ -154,10 +152,9 @@ const Features = () => {
           {features.map((feature, i) => (
             <FeatureCard 
               key={i}
-              custom={i}
               initial="hidden"
               whileInView="visible"
-              viewport={{ once: true, margin: "-50px" }}
+              viewport={{ once: true, amount: 0.2 }}
               variants={featureVariants}
             >
               <FeatureIcon>{feature.icon}</FeatureIcon>

@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 
 const DownloadContainer = styled.div`
   min-height: 100vh;
@@ -115,7 +116,7 @@ const CardDescription = styled.p`
   margin-bottom: 1.5rem;
 `;
 
-const DownloadButton = styled(motion.a)`
+const DownloadButton = styled(motion.button)`
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -129,6 +130,8 @@ const DownloadButton = styled(motion.a)`
   text-decoration: none;
   transition: all 0.2s ease;
   width: 100%;
+  border: none;
+  cursor: pointer;
   
   &:hover {
     background: var(--secondary-blue);
@@ -187,72 +190,68 @@ const CodeBlock = styled.pre`
 `;
 
 const Download = () => {
+  const navigate = useNavigate();
+
   const interpreterDownloads = [
     {
       title: "Windows",
       icon: <i className="devicon-windows8-original colored"></i>,
       description: "For Windows 10/11",
-      link: "/downloads/gasrun-win-x64.exe",
-      version: "0.9.0 Beta"
+      link: "/downloads/gaussian.exe",
+      version: "1.0.3 beta"
     },
     {
       title: "macOS",
       icon: <i className="devicon-apple-original colored"></i>,
       description: "For macOS 11+",
-      link: "/downloads/gasrun-mac-x64",
-      version: "0.9.0 Beta"
+      link: "/downloads/gaussian-macos",
+      version: "1.0.3 beta"
     },
     {
       title: "Linux",
       icon: <i className="devicon-linux-plain colored"></i>,
       description: "For Ubuntu/Debian",
-      link: "/downloads/gasrun-linux-x64",
-      version: "0.9.0 Beta"
+      link: "/downloads/gaussian-linux",
+      version: "1.0.3 beta"
     }
   ];
   
-  // Animation variants
-  const containerVariants = {
+  // Simplified Animation variants
+  const sectionVariants = { // Renamed from containerVariants for clarity
     hidden: { opacity: 0 },
     visible: { 
       opacity: 1,
-      transition: {
-        when: "beforeChildren",
-        staggerChildren: 0.2,
-        delayChildren: 0.3,
-        duration: 0.6
-      } 
-    }
-  };
-  
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { 
-      opacity: 1,
-      y: 0,
-      transition: { duration: 0.5 }
+      transition: { duration: 0.5 } // Simple fade-in
     }
   };
   
   const cardVariants = {
-    hidden: { opacity: 0, y: 20 },
+    hidden: { opacity: 0 },
     visible: { 
       opacity: 1,
-      y: 0,
-      transition: { type: "spring", stiffness: 100 }
+      transition: { duration: 0.5 } // Simple fade-in
     },
-    hover: { 
+    hover: { // Keep hover effect
       y: -5,
-      boxShadow: "0 20px 30px -10px rgba(0, 0, 0, 0.5)",
+      boxShadow: "0 15px 25px -10px rgba(0, 0, 0, 0.4)", // Slightly adjusted hover shadow
       borderColor: "var(--primary-blue)"
     }
   };
   
-  const buttonVariants = {
+  const buttonVariants = { // Keep button animations
     hover: { scale: 1.03, y: -2 },
     tap: { scale: 0.97 }
   };
   
+  // Handler function to navigate to thank you page
+  const handleDownloadClick = (downloadUrl) => {
+      if (!downloadUrl) {
+          console.error("No download URL provided.");
+          return; // Avoid navigating without a URL
+      }
+      navigate('/download/thank-you', { state: { downloadUrl } });
+  };
+
   return (
     <DownloadContainer>
       <PageHeader>
@@ -273,13 +272,11 @@ const Download = () => {
         </PageDescription>
       </PageHeader>
       
-      <DownloadSections
-        variants={containerVariants}
-        initial="hidden"
-        animate="visible"
-      >
+      <DownloadSections>
         <Section 
-          variants={itemVariants}
+          variants={sectionVariants} // Apply simplified variants
+          initial="hidden"
+          animate="visible"
           id="interpreter"
         >
           <SectionTitle>
@@ -295,11 +292,10 @@ const Download = () => {
             {interpreterDownloads.map((download, i) => (
               <DownloadCard 
                 key={i}
-                variants={cardVariants}
+                variants={cardVariants} // Apply simplified variants
                 whileHover="hover"
                 initial="hidden"
                 animate="visible"
-                transition={{ delay: i * 0.1 }}
               >
                 <CardTitle>
                   {download.icon} {download.title}
@@ -310,7 +306,7 @@ const Download = () => {
                   <small>Version: {download.version}</small>
                 </CardDescription>
                 <DownloadButton 
-                  href={download.link}
+                  onClick={() => handleDownloadClick(download.link)}
                   variants={buttonVariants}
                   whileHover="hover"
                   whileTap="tap"
@@ -359,7 +355,9 @@ const Download = () => {
         </Section>
         
         <Section 
-          variants={itemVariants}
+          variants={sectionVariants} // Apply simplified variants
+          initial="hidden"
+          animate="visible"
           id="vscode"
         >
           <SectionTitle>
@@ -372,7 +370,7 @@ const Download = () => {
           
           <DownloadCards>
             <DownloadCard
-              variants={cardVariants}
+              variants={cardVariants} // Apply simplified variants
               whileHover="hover"
               initial="hidden"
               animate="visible"
@@ -386,7 +384,9 @@ const Download = () => {
                 <small>Version: 0.9.0 Beta</small>
               </CardDescription>
               <DownloadButton 
+                as="a"
                 href="/downloads/gaussian-vscode-0.9.0.vsix"
+                download
                 variants={buttonVariants}
                 whileHover="hover"
                 whileTap="tap"
@@ -421,48 +421,6 @@ const Download = () => {
               </li>
             </InstructionsList>
           </Instructions>
-        </Section>
-        
-        <Section 
-          variants={itemVariants}
-          id="source"
-        >
-          <SectionTitle>
-            <i className="devicon-github-original colored"></i> Source Code
-          </SectionTitle>
-          <SectionDescription>
-            The Gaussian language is open source. You can access the source code for the interpreter, VS Code extension, 
-            and documentation on GitHub.
-          </SectionDescription>
-          
-          <DownloadCards>
-            <DownloadCard
-              variants={cardVariants}
-              whileHover="hover"
-              initial="hidden"
-              animate="visible"
-            >
-              <CardTitle>
-                <i className="devicon-github-original colored"></i> GitHub Repository
-              </CardTitle>
-              <CardDescription>
-                Access the complete source code for the Gaussian project.
-              </CardDescription>
-              <DownloadButton 
-                href="https://github.com/gaussian-language" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                variants={buttonVariants}
-                whileHover="hover"
-                whileTap="tap"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
-                </svg>
-                View on GitHub
-              </DownloadButton>
-            </DownloadCard>
-          </DownloadCards>
         </Section>
       </DownloadSections>
     </DownloadContainer>

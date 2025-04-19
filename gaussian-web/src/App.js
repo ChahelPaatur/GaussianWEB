@@ -1,72 +1,97 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import './styles/global.css';
 
 // Components
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
-import VantaBackground from './components/VantaBackground';
-import ParticleBackground from './components/ParticleBackground';
+// Commented out background components
+// import VantaBackground from './components/VantaBackground';
+// import ParticleBackground from './components/ParticleBackground';
 import LoadingIndicator from './components/LoadingIndicator';
+import DocumentationLayout from './components/DocumentationLayout'; // Import layout
+import ScrollToTop from './components/ScrollToTop'; // Import the new component
 
-// Pages
-import Home from './pages/Home';
-import Documentation from './pages/Documentation';
-import Download from './pages/Download';
+// Pages (Lazy loaded)
+const Home = lazy(() => import('./pages/Home'));
+const DocumentationHome = lazy(() => import('./pages/Documentation'));
+const Download = lazy(() => import('./pages/Download'));
+const About = lazy(() => import('./pages/About'));
+const Donations = lazy(() => import('./pages/Donations'));
+const DownloadThankYou = lazy(() => import('./pages/DownloadThankYou'));
+
+// --- Lazy Load Documentation Sub-Pages ---
+const SyntaxOverview = lazy(() => import('./pages/docs/language-reference/SyntaxOverview'));
+const VariablesTypes = lazy(() => import('./pages/docs/language-reference/VariablesTypes'));
+const ControlFlow = lazy(() => import('./pages/docs/language-reference/ControlFlow'));
+const Functions = lazy(() => import('./pages/docs/language-reference/Functions'));
+const ClassesObjects = lazy(() => import('./pages/docs/language-reference/ClassesObjects'));
+const States = lazy(() => import('./pages/docs/language-reference/States'));
+const NativeFunctions = lazy(() => import('./pages/docs/built-in/NativeFunctions'));
+const Modules = lazy(() => import('./pages/docs/built-in/Modules'));
+const AIIntegration = lazy(() => import('./pages/docs/built-in/AIIntegration'));
+const GameDev = lazy(() => import('./pages/docs/examples/GameDev'));
+const TestScripts = lazy(() => import('./pages/docs/examples/TestScripts'));
+// --- End Lazy Load Documentation Sub-Pages ---
 
 const AppRoutes = () => {
   const location = useLocation();
-  const [isLoading, setIsLoading] = useState(false);
-  const [prevLocation, setPrevLocation] = useState('');
-  const isHomePage = location.pathname === '/';
-
-  // Handle page transitions with loading indicator
-  useEffect(() => {
-    if (prevLocation !== location.pathname) {
-      setIsLoading(true);
-      setPrevLocation(location.pathname);
-      
-      // Simulate page loading time (remove in production and use actual data loading events)
-      const timer = setTimeout(() => {
-        setIsLoading(false);
-      }, 800);
-      
-      return () => clearTimeout(timer);
-    }
-  }, [location.pathname, prevLocation]);
+  // Removed unused state related to previous loading indicator logic
+  // const [isLoading, setIsLoading] = useState(false);
+  // const [prevLocation, setPrevLocation] = useState('');
 
   return (
     <>
-      {isHomePage ? <VantaBackground /> : <ParticleBackground />}
+      {/* { isHomePage ? <VantaBackground /> : <ParticleBackground />} */}
       <Navbar />
-      {isLoading && <LoadingIndicator />}
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/docs/*" element={<Documentation />} />
-        <Route path="/download" element={<Download />} />
-        {/* Add more routes as needed */}
-      </Routes>
+      {/* {isLoading && <LoadingIndicator />} */}
+      <Suspense fallback={<LoadingIndicator />}>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          
+          {/* --- Documentation Routes --- */}
+          <Route path="/docs" element={<DocumentationLayout />}>
+            <Route index element={<DocumentationHome />} /> 
+            {/* <Route path="getting-started" element={<InstallationSetup />} /> */}{/* Commented out */}
+            {/* <Route path="hello-world" element={<HelloWorld />} /> */}{/* Commented out */}
+            <Route path="language-reference/syntax" element={<SyntaxOverview />} />
+            <Route path="language-reference/variables" element={<VariablesTypes />} />
+            <Route path="language-reference/control-flow" element={<ControlFlow />} />
+            <Route path="language-reference/functions" element={<Functions />} />
+            <Route path="language-reference/classes" element={<ClassesObjects />} />
+            <Route path="language-reference/states" element={<States />} />
+            <Route path="built-in/functions" element={<NativeFunctions />} />
+            <Route path="built-in/modules" element={<Modules />} />
+            <Route path="built-in/ai" element={<AIIntegration />} />
+            {/* <Route path="examples/game" element={<SimpleGame />} /> */}{/* Commented out */}
+            {/* <Route path="examples/ai-npc" element={<AiNpc />} /> */}{/* Commented out */}
+            {/* --- Add New Doc Example Routes --- */}
+            <Route path="examples/game-dev" element={<GameDev />} />
+            <Route path="examples/test-scripts" element={<TestScripts />} />
+            {/* --- End New Doc Example Routes --- */}
+          </Route>
+          {/* --- End Documentation Routes --- */}
+
+          <Route path="/download" element={<Download />} />
+          {/* --- Add New Route for Thank You Page --- */}
+          <Route path="/download/thank-you" element={<DownloadThankYou />} />
+          {/* --- End New Route --- */}
+          <Route path="/about" element={<About />} /> 
+          <Route path="/donations" element={<Donations />} /> 
+          {/* --- End New Routes --- */}
+          
+          {/* Fallback or 404 route could go here */}
+        </Routes>
+      </Suspense>
       <Footer />
     </>
   );
 };
 
 function App() {
-  useEffect(() => {
-    const script = document.createElement('script');
-    script.src = 'https://kit.fontawesome.com/a076d05399.js';
-    script.crossOrigin = 'anonymous';
-    document.body.appendChild(script);
-    
-    return () => {
-      if (document.body.contains(script)) {
-        document.body.removeChild(script);
-      }
-    };
-  }, []);
-
   return (
     <BrowserRouter>
+      <ScrollToTop />
       <AppRoutes />
     </BrowserRouter>
   );

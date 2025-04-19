@@ -1,6 +1,10 @@
-import React from 'react';
+import React, { useState, memo } from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
+import Modal from './Modal';
+import PrivacyPolicyContent from './PrivacyPolicyContent';
+import TermsOfUseContent from './TermsOfUseContent';
+import ContactInfoContent from './ContactInfoContent';
 
 const FooterContainer = styled.footer`
   background: rgba(15, 23, 42, 0.9);
@@ -119,10 +123,12 @@ const BottomLinks = styled.div`
   display: flex;
   gap: 1.5rem;
   
-  a {
+  span {
     color: var(--text-secondary);
     font-size: 0.875rem;
     text-decoration: none;
+    cursor: pointer;
+    transition: color 0.2s ease;
     
     &:hover {
       color: var(--primary-blue);
@@ -130,72 +136,86 @@ const BottomLinks = styled.div`
   }
 `;
 
-const Footer = () => {
+const Footer = memo(() => {
   const currentYear = new Date().getFullYear();
+  const [isPrivacyModalOpen, setIsPrivacyModalOpen] = useState(false);
+  const [isTermsModalOpen, setIsTermsModalOpen] = useState(false);
+  const [isContactModalOpen, setIsContactModalOpen] = useState(false);
   
   return (
-    <FooterContainer>
-      <FooterContent>
-        <Column>
-          <FooterLogo to="/">
-            <img src="/gaussian-logo.png" alt="Gaussian Logo" />
-            Gaussian
-          </FooterLogo>
-          <FooterDescription>
-            A programming language designed for game development experiments, with an elegant syntax and powerful features.
-          </FooterDescription>
-          <SocialLinks>
-            <SocialLink href="https://github.com/gaussian-language" target="_blank" rel="noopener noreferrer">
-              <i className="fab fa-github"></i>
-            </SocialLink>
-            <SocialLink href="https://twitter.com/gaussian_lang" target="_blank" rel="noopener noreferrer">
-              <i className="fab fa-twitter"></i>
-            </SocialLink>
-            <SocialLink href="https://discord.gg/gaussian" target="_blank" rel="noopener noreferrer">
-              <i className="fab fa-discord"></i>
-            </SocialLink>
-          </SocialLinks>
-        </Column>
+    <>
+      <FooterContainer>
+        <FooterContent>
+          <Column>
+            <FooterLogo to="/">
+              <img src="/gaussian-logo.png" alt="Gaussian Logo" />
+              Gaussian
+            </FooterLogo>
+            <FooterDescription>
+              A programming language designed for game development experiments, with an elegant syntax and powerful features.
+            </FooterDescription>
+            <SocialLinks>
+              <SocialLink href="https://github.com/ChahelPaatur" target="_blank" rel="noopener noreferrer">
+                <i className="fab fa-github"></i>
+              </SocialLink>
+              <SocialLink href="https://www.instagram.com/chahel.237/?next=%2F" target="_blank" rel="noopener noreferrer">
+                <i className="fab fa-instagram"></i>
+              </SocialLink>
+            </SocialLinks>
+          </Column>
+          
+          <Column>
+            <ColumnTitle>Resources</ColumnTitle>
+            <FooterLinks>
+              <FooterLink><Link to="/docs">Documentation</Link></FooterLink>
+              <FooterLink><Link to="/docs/getting-started">Getting Started</Link></FooterLink>
+              <FooterLink><Link to="/docs/language-reference">Language Reference</Link></FooterLink>
+              <FooterLink><Link to="/docs/examples">Examples</Link></FooterLink>
+            </FooterLinks>
+          </Column>
+          
+          <Column>
+            <ColumnTitle>Downloads</ColumnTitle>
+            <FooterLinks>
+              <FooterLink><Link to="/download">Gasrun Interpreter</Link></FooterLink>
+              <FooterLink><Link to="/download#vscode">VS Code Extension</Link></FooterLink>
+              <FooterLink><Link to="/download#source">Source Code</Link></FooterLink>
+            </FooterLinks>
+          </Column>
+          
+          <Column>
+            <ColumnTitle>Community & Contact</ColumnTitle>
+            <FooterLinks>
+              <FooterLink><a href="https://github.com/ChahelPaatur/GaussianWEB" target="_blank" rel="noopener noreferrer">GitHub Repository</a></FooterLink>
+              <FooterLink><span style={{cursor: 'pointer'}} onClick={() => setIsContactModalOpen(true)}>Contact</span></FooterLink>
+              <FooterLink><Link to="/about">About</Link></FooterLink>
+              <FooterLink><Link to="/donations">Donations</Link></FooterLink>
+            </FooterLinks>
+          </Column>
+        </FooterContent>
         
-        <Column>
-          <ColumnTitle>Resources</ColumnTitle>
-          <FooterLinks>
-            <FooterLink><Link to="/docs">Documentation</Link></FooterLink>
-            <FooterLink><Link to="/docs/getting-started">Getting Started</Link></FooterLink>
-            <FooterLink><Link to="/docs/language-reference">Language Reference</Link></FooterLink>
-            <FooterLink><Link to="/docs/examples">Examples</Link></FooterLink>
-          </FooterLinks>
-        </Column>
-        
-        <Column>
-          <ColumnTitle>Downloads</ColumnTitle>
-          <FooterLinks>
-            <FooterLink><Link to="/download">Gasrun Interpreter</Link></FooterLink>
-            <FooterLink><Link to="/download#vscode">VS Code Extension</Link></FooterLink>
-            <FooterLink><Link to="/download#source">Source Code</Link></FooterLink>
-          </FooterLinks>
-        </Column>
-        
-        <Column>
-          <ColumnTitle>Community</ColumnTitle>
-          <FooterLinks>
-            <FooterLink><a href="https://github.com/gaussian-language/issues" target="_blank" rel="noopener noreferrer">GitHub Issues</a></FooterLink>
-            <FooterLink><a href="https://discord.gg/gaussian" target="_blank" rel="noopener noreferrer">Discord</a></FooterLink>
-            <FooterLink><Link to="/about">About</Link></FooterLink>
-            <FooterLink><Link to="/community">Contributing</Link></FooterLink>
-          </FooterLinks>
-        </Column>
-      </FooterContent>
-      
-      <BottomBar>
-        <Copyright>© {currentYear} Gaussian Language. All rights reserved.</Copyright>
-        <BottomLinks>
-          <Link to="/privacy">Privacy Policy</Link>
-          <Link to="/terms">Terms of Use</Link>
-        </BottomLinks>
-      </BottomBar>
-    </FooterContainer>
+        <BottomBar>
+          <Copyright>© {currentYear} Gaussian Language. All rights reserved. - v1.0.3 beta</Copyright>
+          <BottomLinks>
+            <span onClick={() => setIsPrivacyModalOpen(true)}>Privacy Policy</span>
+            <span onClick={() => setIsTermsModalOpen(true)}>Terms of Use</span>
+          </BottomLinks>
+        </BottomBar>
+      </FooterContainer>
+
+      <Modal isOpen={isPrivacyModalOpen} onClose={() => setIsPrivacyModalOpen(false)}>
+        <PrivacyPolicyContent />
+      </Modal>
+
+      <Modal isOpen={isTermsModalOpen} onClose={() => setIsTermsModalOpen(false)}>
+        <TermsOfUseContent />
+      </Modal>
+
+      <Modal isOpen={isContactModalOpen} onClose={() => setIsContactModalOpen(false)}>
+        <ContactInfoContent />
+      </Modal>
+    </>
   );
-};
+});
 
 export default Footer; 

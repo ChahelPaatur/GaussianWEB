@@ -1,59 +1,70 @@
-import React, { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import React, { useState, memo } from 'react';
 import styled from 'styled-components';
+import { Link, useLocation, Outlet } from 'react-router-dom';
 
 const DocContainer = styled.div`
   display: flex;
   min-height: 100vh;
-  padding-top: 70px;
+  padding-top: 70px; /* Adjust based on Navbar height */
 `;
 
-const Sidebar = styled.div`
-  width: 280px;
+const Sidebar = styled.div.withConfig({
+  shouldForwardProp: (prop) => !['isOpen'].includes(prop)
+})`
+  width: 220px;
   background: rgba(15, 23, 42, 0.8);
   border-right: 1px solid var(--border-color);
   padding: 2rem;
   position: fixed;
-  height: calc(100vh - 70px);
+  height: calc(100vh - 70px); /* Adjust based on Navbar height */
   overflow-y: auto;
   transition: transform 0.3s ease;
+  z-index: 1000;
+  box-shadow: 5px 0 15px rgba(0,0,0,0.2);
   
   @media (max-width: 768px) {
     transform: ${({ isOpen }) => isOpen ? 'translateX(0)' : 'translateX(-100%)'};
-    z-index: 10;
   }
 `;
 
 const MenuToggle = styled.button`
   display: none;
   position: fixed;
-  bottom: 2rem;
-  right: 2rem;
-  width: 50px;
-  height: 50px;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  width: 55px;
+  height: 55px;
   border-radius: 50%;
   background: var(--primary-blue);
   color: white;
-  font-size: 1.5rem;
+  font-size: 1.8rem;
   border: none;
-  z-index: 11;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  z-index: 1001;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s ease;
+  
+  &:hover {
+    background-color: var(--secondary-blue);
+  }
   
   @media (max-width: 768px) {
     display: flex;
-    align-items: center;
-    justify-content: center;
   }
 `;
 
 const Content = styled.div`
   flex: 1;
   padding: 2rem;
-  margin-left: 280px;
+  margin-left: 220px;
+  transition: margin-left 0.3s ease;
   
   @media (max-width: 768px) {
     margin-left: 0;
+    padding: 2rem 1rem;
   }
 `;
 
@@ -85,7 +96,9 @@ const NavItem = styled.li`
   margin-bottom: 0.5rem;
 `;
 
-const NavLink = styled(Link)`
+const NavLink = styled(Link).withConfig({
+  shouldForwardProp: (prop) => !['active'].includes(prop)
+})`
   color: ${({ active }) => active ? 'var(--primary-blue)' : 'var(--text-secondary)'};
   text-decoration: none;
   font-size: 0.9rem;
@@ -99,7 +112,7 @@ const NavLink = styled(Link)`
   }
 `;
 
-const DocumentationLayout = ({ children }) => {
+const DocumentationLayout = memo(({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
   
@@ -108,7 +121,8 @@ const DocumentationLayout = ({ children }) => {
   };
   
   const isActive = (path) => {
-    return location.pathname === path;
+    return location.pathname === path || 
+           (path !== '/docs' && location.pathname.startsWith(path + '/')); 
   };
   
   return (
@@ -116,6 +130,8 @@ const DocumentationLayout = ({ children }) => {
       <Sidebar isOpen={sidebarOpen}>
         <SidebarTitle>Documentation</SidebarTitle>
         
+        {/* Comment out Getting Started for now */}
+        {/* 
         <NavCategory>
           <CategoryTitle>Getting Started</CategoryTitle>
           <NavList>
@@ -131,7 +147,8 @@ const DocumentationLayout = ({ children }) => {
             </NavItem>
           </NavList>
         </NavCategory>
-        
+        */}
+
         <NavCategory>
           <CategoryTitle>Language Reference</CategoryTitle>
           <NavList>
@@ -167,7 +184,7 @@ const DocumentationLayout = ({ children }) => {
             </NavItem>
           </NavList>
         </NavCategory>
-        
+
         <NavCategory>
           <CategoryTitle>Built-in Functionality</CategoryTitle>
           <NavList>
@@ -189,6 +206,8 @@ const DocumentationLayout = ({ children }) => {
           </NavList>
         </NavCategory>
         
+        {/* Comment out Examples for now */}
+        {/* 
         <NavCategory>
           <CategoryTitle>Examples</CategoryTitle>
           <NavList>
@@ -204,6 +223,22 @@ const DocumentationLayout = ({ children }) => {
             </NavItem>
           </NavList>
         </NavCategory>
+        */}
+        <NavCategory> 
+          <CategoryTitle>Examples</CategoryTitle>
+          <NavList>
+            <NavItem>
+              <NavLink to="/docs/examples/game-dev" active={isActive('/docs/examples/game-dev')}>
+                Game Development
+              </NavLink>
+            </NavItem>
+            <NavItem>
+              <NavLink to="/docs/examples/test-scripts" active={isActive('/docs/examples/test-scripts')}>
+                Test Scripts
+              </NavLink>
+            </NavItem>
+          </NavList>
+        </NavCategory>
       </Sidebar>
       
       <MenuToggle onClick={toggleSidebar}>
@@ -211,10 +246,10 @@ const DocumentationLayout = ({ children }) => {
       </MenuToggle>
       
       <Content>
-        {children}
+        <Outlet />
       </Content>
     </DocContainer>
   );
-};
+});
 
-export default DocumentationLayout; 
+export default DocumentationLayout;

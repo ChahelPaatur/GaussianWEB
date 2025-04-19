@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, memo } from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { motion } from 'framer-motion';
@@ -14,8 +14,8 @@ const NavContainer = styled.nav`
   right: 0;
   z-index: 100;
   transition: background-color 0.3s ease;
-  background-color: ${props => props.scrolled ? 'rgba(15, 23, 42, 0.9)' : 'transparent'};
-  backdrop-filter: ${props => props.scrolled ? 'blur(10px)' : 'none'};
+  background-color: ${props => props.$scrolled ? 'rgba(15, 23, 42, 0.9)' : 'transparent'};
+  backdrop-filter: ${props => props.$scrolled ? 'blur(10px)' : 'none'};
 `;
 
 const Logo = styled(Link)`
@@ -30,6 +30,18 @@ const Logo = styled(Link)`
   img {
     height: 2.5rem;
   }
+`;
+
+// Added for Beta text
+const BetaTag = styled.span`
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  background: rgba(255, 255, 255, 0.1);
+  padding: 0.2rem 0.4rem;
+  border-radius: 4px;
+  margin-left: 0.5rem; // Space from logo text
+  vertical-align: middle; // Align nicely with text
 `;
 
 const NavLinks = styled.div`
@@ -115,7 +127,7 @@ const CloseButton = styled.button`
   cursor: pointer;
 `;
 
-const Navbar = () => {
+const Navbar = memo(() => {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -134,18 +146,19 @@ const Navbar = () => {
 
   return (
     <>
-      <NavContainer scrolled={scrolled}>
+      <NavContainer $scrolled={scrolled}>
         <Logo to="/">
           <img src="/gaussian-logo.png" alt="Gaussian Logo" />
           Gaussian
+          <BetaTag>v1.0.3 beta</BetaTag>
         </Logo>
         
         <NavLinks>
           <NavLink to="/">Home</NavLink>
           <NavLink to="/docs">Documentation</NavLink>
           <NavLink to="/download">Download</NavLink>
-          <NavLink to="/community">Community</NavLink>
-          <NavLink to="/about">About</NavLink>
+          <NavLink to="/about">About</NavLink> 
+          <NavLink to="/donations">Donations</NavLink> 
         </NavLinks>
         
         <MobileMenuButton onClick={() => setMobileMenuOpen(true)}>
@@ -164,12 +177,12 @@ const Navbar = () => {
           <MobileNavLink to="/" onClick={() => setMobileMenuOpen(false)}>Home</MobileNavLink>
           <MobileNavLink to="/docs" onClick={() => setMobileMenuOpen(false)}>Documentation</MobileNavLink>
           <MobileNavLink to="/download" onClick={() => setMobileMenuOpen(false)}>Download</MobileNavLink>
-          <MobileNavLink to="/community" onClick={() => setMobileMenuOpen(false)}>Community</MobileNavLink>
           <MobileNavLink to="/about" onClick={() => setMobileMenuOpen(false)}>About</MobileNavLink>
+          <MobileNavLink to="/donations" onClick={() => setMobileMenuOpen(false)}>Donations</MobileNavLink>
         </MobileMenu>
       )}
-    </>
+    </> 
   );
-};
+});
 
 export default Navbar; 

@@ -1,7 +1,9 @@
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { motion } from 'framer-motion';
+import * as THREE from 'three';
+import CLOUDS from 'vanta/dist/vanta.clouds.min';
 
 const HeroContainer = styled.div`
   min-height: 100vh;
@@ -9,7 +11,7 @@ const HeroContainer = styled.div`
   flex-direction: column;
   justify-content: center;
   padding: 6rem 2rem 4rem;
-  position: relative;
+  position: relative; // Important for Vanta positioning
   overflow: hidden;
   
   @media (max-width: 768px) {
@@ -25,6 +27,8 @@ const HeroContent = styled.div`
   grid-template-columns: 1fr 1fr;
   gap: 3rem;
   align-items: center;
+  position: relative; // Needed to keep content above Vanta background
+  z-index: 1;
   
   @media (max-width: 968px) {
     grid-template-columns: 1fr;
@@ -38,7 +42,7 @@ const HeroText = styled(motion.div)`
   }
 `;
 
-const Subtitle = styled(motion.div)`
+const Subtitle = styled(motion.h2)` // Changed from div to h2 for semantic correctness
   color: var(--primary-blue);
   font-weight: 600;
   margin-bottom: 1rem;
@@ -85,7 +89,7 @@ const ButtonGroup = styled(motion.div)`
   }
 `;
 
-const PrimaryButton = styled(motion(Link))`
+const PrimaryButton = styled(motion.a)`
   background: var(--primary-blue);
   color: white;
   padding: 0.875rem 1.75rem;
@@ -93,6 +97,8 @@ const PrimaryButton = styled(motion(Link))`
   font-weight: 600;
   text-decoration: none;
   transition: all 0.2s ease;
+  display: inline-block; // Ensure proper layout for Link
+  text-align: center; // Ensure text center in column layout
   
   &:hover {
     background: var(--secondary-blue);
@@ -101,11 +107,10 @@ const PrimaryButton = styled(motion(Link))`
   
   @media (max-width: 480px) {
     width: 100%;
-    text-align: center;
   }
 `;
 
-const SecondaryButton = styled(motion(Link))`
+const SecondaryButton = styled(motion.a)`
   background: transparent;
   color: var(--text-color);
   padding: 0.875rem 1.75rem;
@@ -114,6 +119,8 @@ const SecondaryButton = styled(motion(Link))`
   text-decoration: none;
   border: 1px solid var(--border-color);
   transition: all 0.2s ease;
+  display: inline-block; // Ensure proper layout for Link
+  text-align: center; // Ensure text center in column layout
   
   &:hover {
     background: rgba(255, 255, 255, 0.1);
@@ -122,7 +129,6 @@ const SecondaryButton = styled(motion(Link))`
   
   @media (max-width: 480px) {
     width: 100%;
-    text-align: center;
   }
 `;
 
@@ -131,6 +137,7 @@ const CodeExampleWrapper = styled(motion.div)`
   
   @media (max-width: 968px) {
     order: 1;
+    margin-bottom: 2rem; // Add margin when stacked
   }
 `;
 
@@ -144,11 +151,13 @@ const CodeExample = styled(motion.pre)`
   font-family: 'SF Mono', SFMono-Regular, Consolas, 'Liberation Mono', Menlo, monospace;
   backdrop-filter: blur(10px);
   max-width: 100%;
+  overflow-x: auto; // Allow horizontal scroll for code
   
   code {
     color: var(--text-secondary);
     line-height: 1.6;
     font-size: 0.9rem;
+    white-space: pre; // Preserve whitespace
   }
   
   .keyword {
@@ -176,156 +185,119 @@ const CodeExample = styled(motion.pre)`
   }
 `;
 
-const FloatingGradient = styled(motion.div)`
-  position: absolute;
-  width: 300px;
-  height: 300px;
-  border-radius: 50%;
-  background: radial-gradient(circle, var(--primary-blue) 0%, rgba(62, 110, 164, 0) 70%);
-  opacity: 0.6;
-  filter: blur(100px);
-  z-index: -1;
-`;
-
 const Hero = () => {
-  // Animation variants
+  const [vantaEffect, setVantaEffect] = useState(null);
+  const vantaRef = useRef(null); 
+
+  useEffect(() => {
+    if (!vantaEffect && vantaRef.current) {
+      setVantaEffect(CLOUDS({
+        el: vantaRef.current,
+        THREE: THREE, 
+        mouseControls: true, 
+        touchControls: true, 
+        gyroControls: false,
+        minHeight: 200.00,
+        minWidth: 200.00,
+        skyColor: 0x192f46, 
+        cloudColor: 0x436998, 
+        cloudShadowColor: 0xe1e34, // Corrected hex value? (was 0xe1e34) -> 0x0e1e34 might be intended
+        sunColor: 0x140d06, 
+        sunGlareColor: 0x6e3320, 
+        sunlightColor: 0x7a6148
+      }));
+    }
+
+    return () => {
+      if (vantaEffect) {
+        vantaEffect.destroy();
+        setVantaEffect(null); 
+      }
+    };
+  }, [vantaEffect]); 
+
+  // Simplified Animation variants
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: { 
       opacity: 1,
-      transition: { 
-        when: "beforeChildren",
-        staggerChildren: 0.2,
-        duration: 0.6
-      }
+      transition: { duration: 0.5 } // Simple fade-in, removed stagger
     }
   };
   
   const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
+    hidden: { opacity: 0 }, // Removed y: 20
     visible: { 
       opacity: 1,
-      y: 0,
-      transition: { duration: 0.6 }
+      transition: { duration: 0.5 } // Simple fade-in
     }
   };
   
   const codeVariants = {
-    hidden: { opacity: 0, scale: 0.95 },
+    hidden: { opacity: 0 }, // Removed scale: 0.95
     visible: { 
       opacity: 1,
-      scale: 1,
-      transition: { 
-        duration: 0.8,
-        type: "spring",
-        stiffness: 100
-      }
+      transition: { duration: 0.6 } // Simple fade-in, removed spring
     }
-  };
-  
-  const buttonVariants = {
-    hover: { scale: 1.05, y: -5 },
-    tap: { scale: 0.95 }
   };
 
   return (
-    <HeroContainer>
-      <FloatingGradient
-        initial={{ x: -100, y: -100 }}
-        animate={{ 
-          x: [-100, 100, -100],
-          y: [-100, 100, -100]
-        }}
-        transition={{ 
-          repeat: Infinity,
-          duration: 20,
-          ease: "easeInOut"
-        }}
-        style={{ top: '20%', left: '10%' }}
-      />
-      
-      <FloatingGradient
-        initial={{ x: 100, y: 100 }}
-        animate={{ 
-          x: [100, -100, 100],
-          y: [100, -100, 100]
-        }}
-        transition={{ 
-          repeat: Infinity,
-          duration: 25,
-          ease: "easeInOut"
-        }}
-        style={{ bottom: '10%', right: '10%' }}
-      />
-      
-      <HeroContent>
-        <HeroText
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
-        >
-          <Subtitle variants={itemVariants}>Introducing</Subtitle>
-          <Title variants={itemVariants}>The Gaussian Programming Language</Title>
+    <HeroContainer ref={vantaRef} style={{ position: 'relative', minHeight: '100vh' }}>
+      <HeroContent
+        variants={containerVariants} // Apply simplified variants
+        initial="hidden"
+        animate="visible"
+      >
+        <HeroText>
+          <Subtitle variants={itemVariants}>Gaussian Programming Language</Subtitle>
+          <Title variants={itemVariants}>
+            Create Unique Game Mechanics with AI
+          </Title>
           <Description variants={itemVariants}>
-            A powerful scripting language designed specifically for game development experiments.
-            Write elegant, readable code with a syntax inspired by JavaScript, Python, and C#.
+            Gaussian is a scripting language designed for game development experiments, 
+            featuring elegant syntax, state machines, and easy AI integration.
           </Description>
           <ButtonGroup variants={itemVariants}>
             <PrimaryButton 
+              as={Link} 
               to="/download"
-              variants={buttonVariants}
-              whileHover="hover"
-              whileTap="tap"
+              whileHover={{ scale: 1.03, y: -2 }} // Keep simple hover animations
+              whileTap={{ scale: 0.97 }}
             >
-              Get Started
+              Download v1.0.3 beta
             </PrimaryButton>
             <SecondaryButton 
+              as={Link} 
               to="/docs"
-              variants={buttonVariants}
-              whileHover="hover"
-              whileTap="tap"
+              whileHover={{ scale: 1.03, y: -2 }}
+              whileTap={{ scale: 0.97 }}
             >
-              View Docs
+              View Documentation
             </SecondaryButton>
           </ButtonGroup>
         </HeroText>
         
-        <CodeExampleWrapper
-          initial={{ opacity: 0, x: 50 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ 
-            duration: 0.8,
-            delay: 0.4,
-            type: "spring",
-            stiffness: 50
-          }}
-        >
-          <CodeExample
-            variants={codeVariants}
-            initial="hidden"
-            animate="visible"
-            whileHover={{ y: -5, boxShadow: "0 25px 90px -15px rgba(0, 0, 0, 0.6)" }}
-            transition={{ duration: 0.3 }}
-          >
+        <CodeExampleWrapper variants={codeVariants}> {/* Apply simplified code variants */} 
+          <CodeExample>
             <code>
-              <span className="comment">// Define a Player class</span><br/>
-              <span className="keyword">class</span> <span className="class-name">Player</span> {'{'}<br/>
-              {'  '}<span className="keyword">var</span> x = <span className="number">0</span>;<br/>
-              {'  '}<span className="keyword">val</span> speed = <span className="number">5</span>;<br/>
-              <br/>
-              {'  '}{/* Initializer (constructor) */}<br/>
-              {'  '}<span className="function">init</span>(startX) {'{'}<br/>
-              {'    '}this.x = startX;<br/>
-              {'    '}<span className="function">print</span> <span className="string">"Player created at x="</span> + this.x;<br/>
-              {'  }'}<br/>
-              <br/>
-              {'  '}<span className="keyword">function</span> <span className="function">move</span>(dx) {'{'}<br/>
-              {'    '}this.x = this.x + dx * this.speed;<br/>
-              {'  }'}<br/>
-              {'}'}<br/>
-              <br/>
-              <span className="keyword">var</span> p = <span className="function">Player</span>(<span className="number">50</span>);<br/>
-              p.<span className="function">move</span>(<span className="number">10</span>);<br/>
+              <span className="comment">// Define a Player class</span>{`\n`}
+              <span className="keyword">class</span> <span className="class-name">Player</span> {'{'}{`\n`}
+              {'  '}<span className="keyword">var</span> x = <span className="number">0</span>;{`\n`}
+              {'  '}<span className="keyword">val</span> speed = <span className="number">5</span>;{`\n`}
+              {`\n`}
+              {'  '}{/* Initializer (constructor) */}{`\n`}
+              {'  '}<span className="function">init</span>(startX) {'{'}{`\n`}
+              {'    '}this.x = startX;{`\n`}
+              {'    '}<span className="function">print</span> <span className="string">"Player created at x="</span> + this.x;{`\n`}
+              {'  }'}{`\n`}
+              {`\n`}
+              {'  '}<span className="keyword">function</span> <span className="function">move</span>(dx) {'{'}{`\n`}
+              {'    '}this.x = this.x + dx * this.speed;{`\n`}
+              {'  }'}{`\n`}
+              {'}'}{`\n`}
+              {`\n`}
+              <span className="keyword">var</span> p = <span className="function">Player</span>(<span className="number">50</span>);{`\n`}
+              p.<span className="function">move</span>(<span className="number">10</span>);{`\n`}
               <span className="function">print</span> <span className="string">"Player position: "</span> + p.x;
             </code>
           </CodeExample>
@@ -335,4 +307,4 @@ const Hero = () => {
   );
 };
 
-export default Hero; 
+export default Hero;

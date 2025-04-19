@@ -1,6 +1,5 @@
 import React from 'react';
 import styled from 'styled-components';
-import DocumentationLayout from '../components/DocumentationLayout';
 
 const DocHeader = styled.div`
   margin-bottom: 2rem;
@@ -79,7 +78,7 @@ const CardLink = styled.a`
 
 const Documentation = () => {
   return (
-    <DocumentationLayout>
+    <>
       <DocHeader>
         <DocTitle>Gaussian Language Documentation</DocTitle>
         <DocDescription>
@@ -137,7 +136,7 @@ const Documentation = () => {
           <CardLink href="/community">Get Involved</CardLink>
         </DocCard>
       </DocsGrid>
-    </DocumentationLayout>
+    </>
   );
 };
 
