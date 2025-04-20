@@ -1,5 +1,6 @@
 import React, { useEffect, useState, lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
+import { Analytics } from "@vercel/analytics/react";
 import './styles/global.css';
 
 // Components
@@ -93,6 +94,7 @@ function App() {
     <BrowserRouter>
       <ScrollToTop />
       <AppRoutes />
+      <Analytics />
     </BrowserRouter>
   );
 }
