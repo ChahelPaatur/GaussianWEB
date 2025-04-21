@@ -204,7 +204,7 @@ const Download = () => {
       title: "macOS",
       icon: <i className="devicon-apple-original colored"></i>,
       description: "For macOS 11+",
-      link: "/downloads/gaussian-macos.zip",
+      link: "/downloads/gaussian-macos-signed.pkg",
       version: "1.0.3 beta"
     },
     {
