@@ -133,7 +133,7 @@ const Documentation = () => {
           <CardDescription>
             Learn how to contribute to Gaussian's development, report bugs, and suggest features.
           </CardDescription>
-          <CardLink href="/community">Get Involved</CardLink>
+          <CardLink href="/about">Get Involved</CardLink>
         </DocCard>
       </DocsGrid>
     </>
