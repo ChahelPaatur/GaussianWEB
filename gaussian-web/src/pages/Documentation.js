@@ -117,7 +117,7 @@ const Documentation = () => {
           <CardDescription>
             Learn how to use Gaussian's game-specific features like states, graphics integration, and input handling.
           </CardDescription>
-          <CardLink href="/docs/examples/game">View Examples</CardLink>
+          <CardLink href="/docs/examples/game-dev">View Examples</CardLink>
         </DocCard>
         
         <DocCard>

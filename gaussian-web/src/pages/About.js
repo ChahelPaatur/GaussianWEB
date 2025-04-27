@@ -31,6 +31,29 @@ const HeaderText = styled(motion.div)`
   }
 `;
 
+// New styled component for the logo image
+const LogoImage = styled.img`
+  height: 250px; // Adjust size as needed for the grid column
+  width: auto;
+  max-width: 100%;
+  display: block; // Good practice for images in layout
+  margin: auto; // Center if needed within its container
+`;
+
+// Container for the logo in the grid
+const LogoContainer = styled(motion.div)`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+
+  @media (max-width: 768px) {
+    order: 1; // Logo appears above text on small screens
+    margin-bottom: 2rem;
+    height: auto; // Reset height for column layout
+  }
+`;
+
 const MainHeading = styled(motion.h1)`
   font-size: 3.8rem;
   margin-bottom: 1rem;
@@ -126,9 +149,9 @@ const About = () => {
             Gaussian is an experimental scripting language designed for creative coding and rapid game prototyping.
           </IntroParagraph>
         </HeaderText>
-        <ImagePlaceholder variants={itemVariants}>
-          (Illustrative Image/Graphic Placeholder)
-        </ImagePlaceholder>
+        <LogoContainer variants={itemVariants}>
+          <LogoImage src="/gaussian-logo.png" alt="Gaussian Logo" />
+        </LogoContainer>
       </HeaderSection>
 
       <ContentSection variants={itemVariants}>
@@ -150,13 +173,11 @@ const About = () => {
 
         <SubHeading variants={itemVariants}>The Creator</SubHeading>
         <Paragraph variants={itemVariants}>
-          Gaussian is primarily developed by Chahel. Driven by a passion for game development and simpler tooling, this project serves as both a learning experience and an attempt to create something useful for the creative coding community.
+          Gaussian is primarily developed by Chahel Paatur, a student at John C. Kimball High School in Tracy, CA. Driven by a passion for game development and simpler tooling, this project serves as both a learning experience and an attempt to create something useful for the creative coding community.
         </Paragraph>
-        {/* Optional: Add a link
         <Paragraph variants={itemVariants}> 
-          Follow the development progress on <a href="#" target="_blank" rel="noopener noreferrer">GitHub</a>.
+          Follow the development progress on <a href="https://github.com/ChahelPaatur" target="_blank" rel="noopener noreferrer">GitHub</a>.
         </Paragraph>
-         */}
       </ContentSection>
     </AboutContainer>
   );

@@ -144,7 +144,7 @@ const Donations = () => {
             <StyledImage src={m2Png} alt="Creator Portrait 2" loading="lazy" />
           </ImageContainer>
           <ContentParagraph>
-            Gaussian is a passion project aimed at creating a fun and accessible scripting language for game development experiments. Your contribution directly supports development efforts, server costs, and helps keep the project moving forward.
+            Gaussian is a passion project developed by Chahel Paatur, aimed at creating a fun and accessible scripting language for game development experiments. Your contribution directly supports development efforts, server costs, and helps keep the project moving forward.
           </ContentParagraph>
           <ContentParagraph>
             Whether it's a one-time donation or monthly support, every bit helps foster innovation and allows more time to be dedicated to improving the language and its features. Thank you for considering supporting Gaussian!

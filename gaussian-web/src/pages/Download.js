@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
@@ -116,6 +116,17 @@ const CardDescription = styled.p`
   margin-bottom: 1.5rem;
 `;
 
+const ChecksumText = styled.code`
+  display: block;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  margin-top: 1rem;
+  word-break: break-all;
+  background: rgba(0,0,0,0.2);
+  padding: 0.3rem 0.6rem;
+  border-radius: 4px;
+`;
+
 const DownloadButton = styled(motion.button)`
   display: inline-flex;
   align-items: center;
@@ -189,16 +200,144 @@ const CodeBlock = styled.pre`
   }
 `;
 
+// Add Modal Styles
+const ModalOverlay = styled(motion.div)`
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+`;
+
+const ModalContent = styled(motion.div)`
+  background: var(--background-darker);
+  padding: 2rem;
+  border-radius: 12px;
+  max-width: 500px;
+  width: 90%;
+  border: 1px solid var(--border-color);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+`;
+
+const ModalHeader = styled.h3`
+  font-size: 1.5rem;
+  color: var(--text-color);
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  i {
+    color: #f39c12; // Warning color
+  }
+`;
+
+const ModalBody = styled.p`
+  color: var(--text-secondary);
+  margin-bottom: 1.5rem;
+  line-height: 1.6;
+`;
+
+const ModalFooter = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+`;
+
+const ModalButton = styled.button`
+  padding: 0.6rem 1.2rem;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  border: none;
+
+  &.primary {
+    background-color: var(--primary-blue);
+    color: white;
+    &:hover {
+      background-color: var(--secondary-blue);
+    }
+  }
+
+  &.secondary {
+    background-color: var(--background-light);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-color);
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+  }
+`;
+
+// Add styled component for the Marketplace link
+const MarketplaceLink = styled(motion.a)`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background: #6c5ce7; // Different color for distinction
+  color: white;
+  padding: 0.75rem 1.25rem;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  width: 100%;
+  border: none;
+  cursor: pointer;
+  margin-top: 0.75rem; // Add some space above
+  
+  &:hover {
+    background: #5849bf;
+    transform: translateY(-2px);
+  }
+  
+  svg {
+    width: 16px;
+    height: 16px;
+  }
+`;
+
 const Download = () => {
   const navigate = useNavigate();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [downloadUrlToProceed, setDownloadUrlToProceed] = useState('');
+
+  const showWarningModal = (url) => {
+    setDownloadUrlToProceed(url);
+    setIsModalOpen(true);
+  };
+
+  const handleProceedDownload = () => {
+    // Use window.location.href for simple downloads
+    // Or implement more robust download logic if needed
+    if (downloadUrlToProceed) {
+      window.location.href = downloadUrlToProceed;
+    }
+    setIsModalOpen(false);
+    setDownloadUrlToProceed('');
+  };
+
+  const handleCancelModal = () => {
+    setIsModalOpen(false);
+    setDownloadUrlToProceed('');
+  };
 
   const interpreterDownloads = [
     {
       title: "Windows",
       icon: <i className="devicon-windows8-original colored"></i>,
-      description: "For Windows 10/11",
+      description: "For Windows 10/11 (.exe)",
       link: "/downloads/gaussian.exe",
-      version: "1.0.3 beta"
+      checksum: "9922EE263B0390A206DA273311C16F388D7AC355365A7A34980E8E5B3020C3A3",
+      requiresModal: true,
     },
     {
       title: "macOS",
@@ -244,12 +383,23 @@ const Download = () => {
   };
   
   // Handler function to navigate to thank you page
-  const handleDownloadClick = (downloadUrl) => {
-      if (!downloadUrl) {
-          console.error("No download URL provided.");
-          return; // Avoid navigating without a URL
-      }
-      navigate('/download/thank-you', { state: { downloadUrl } });
+  const handleDownloadClick = (downloadUrl, requiresModal) => {
+    if (requiresModal) {
+        showWarningModal(downloadUrl);
+    } else {
+        // Handle direct downloads for other platforms if needed
+        window.location.href = downloadUrl;
+    }
+  };
+
+  const modalVariants = {
+    hidden: { opacity: 0 },
+    visible: { opacity: 1 },
+  };
+
+  const modalContentVariants = {
+    hidden: { scale: 0.9, opacity: 0 },
+    visible: { scale: 1, opacity: 1, transition: { type: 'spring', stiffness: 300, damping: 25 } },
   };
 
   return (
@@ -289,7 +439,7 @@ const Download = () => {
           </SectionDescription>
           
           <DownloadCards>
-            {interpreterDownloads.map((download, i) => (
+            {interpreterDownloads.map((dl, i) => (
               <DownloadCard 
                 key={i}
                 variants={cardVariants} // Apply simplified variants
@@ -298,15 +448,15 @@ const Download = () => {
                 animate="visible"
               >
                 <CardTitle>
-                  {download.icon} {download.title}
+                  {dl.icon} {dl.title}
                 </CardTitle>
                 <CardDescription>
-                  {download.description}
+                  {dl.description}
                   <br />
-                  <small>Version: {download.version}</small>
+                  <small>Version: {dl.version}</small>
                 </CardDescription>
                 <DownloadButton 
-                  onClick={() => handleDownloadClick(download.link)}
+                  onClick={() => handleDownloadClick(dl.link, dl.requiresModal)}
                   variants={buttonVariants}
                   whileHover="hover"
                   whileTap="tap"
@@ -318,6 +468,9 @@ const Download = () => {
                   </svg>
                   Download
                 </DownloadButton>
+                {dl.checksum && (
+                   <ChecksumText>SHA-256: {dl.checksum}</ChecksumText>
+                )}
               </DownloadCard>
             ))}
           </DownloadCards>
@@ -379,7 +532,7 @@ const Download = () => {
                 <i className="devicon-vscode-plain colored"></i> VS Code Extension
               </CardTitle>
               <CardDescription>
-                Gaussian language support for Visual Studio Code.
+                Gaussian language support for Visual Studio Code. You can also find this by searching for "Gaussian" in the VS Code Extensions view (Ctrl+Shift+X).
                 <br />
                 <small>Version: 0.9.0 Beta</small>
               </CardDescription>
@@ -398,6 +551,20 @@ const Download = () => {
                 </svg>
                 Download VSIX
               </DownloadButton>
+              {/* Add Marketplace Link */}
+              <MarketplaceLink 
+                href="https://marketplace.visualstudio.com/items?itemName=ChahelPaatur.gaussian" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                variants={buttonVariants} // Reuse button variants for consistency
+                whileHover="hover"
+                whileTap="tap"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
+                  <path d="M13.1 1.69998C12.4 1.29998 11.6 1.29998 10.9 1.69998L2.6 6.49998C2.3 6.69998 2 7.09998 2 7.49998V16.5C2 16.9 2.3 17.3 2.6 17.5L10.9 22.3C11.6 22.7 12.4 22.7 13.1 22.3L21.4 17.5C21.7 17.3 22 16.9 22 16.5V7.49998C22 7.09998 21.7 6.69998 21.4 6.49998L13.1 1.69998ZM18.6 15.7L12 19.3V4.69998L18.6 8.29998V15.7Z" />
+                </svg>
+                View in Marketplace
+              </MarketplaceLink>
             </DownloadCard>
           </DownloadCards>
           
@@ -423,6 +590,37 @@ const Download = () => {
           </Instructions>
         </Section>
       </DownloadSections>
+
+      {/* Modal Component */}
+      {isModalOpen && (
+        <ModalOverlay
+            initial="hidden"
+            animate="visible"
+            exit="hidden"
+            variants={modalVariants}
+            transition={{ duration: 0.2 }}
+            onClick={handleCancelModal} // Close on overlay click
+        >
+          <ModalContent
+            variants={modalContentVariants}
+            onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside modal
+          >
+            <ModalHeader>
+              <i className="fas fa-exclamation-triangle"></i> Security Notice
+            </ModalHeader>
+            <ModalBody>
+              This application is not digitally signed by a commercial Certificate Authority (which can be expensive!). Because of this, Windows SmartScreen or your antivirus might show a warning when you download or run it.
+              <br /><br />
+              We assure you the file is safe. You can verify the integrity of the download using the provided SHA-256 checksum.
+            </ModalBody>
+            <ModalFooter>
+              <ModalButton className="secondary" onClick={handleCancelModal}>Cancel</ModalButton>
+              <ModalButton className="primary" onClick={handleProceedDownload}>Proceed to Download</ModalButton>
+            </ModalFooter>
+          </ModalContent>
+        </ModalOverlay>
+      )}
+
     </DownloadContainer>
   );
 };

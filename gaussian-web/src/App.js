@@ -12,6 +12,7 @@ import Footer from './components/Footer';
 import LoadingIndicator from './components/LoadingIndicator';
 import DocumentationLayout from './components/DocumentationLayout'; // Import layout
 import ScrollToTop from './components/ScrollToTop'; // Import the new component
+import LoadingScreen from './components/LoadingScreen'; // Import the new loading screen
 
 // Pages (Lazy loaded)
 const Home = lazy(() => import('./pages/Home'));
@@ -90,11 +91,31 @@ const AppRoutes = () => {
 };
 
 function App() {
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Simulate loading time
+  useEffect(() => {
+    // The LoadingScreen component itself handles the initial 2-second delay
+    // and then calls the onLoaded function after its animation starts.
+    // The onLoaded function here will set isLoading to false.
+    // If LoadingScreen didn't have its own timer/callback, you'd use setTimeout here.
+  }, []);
+
+  const handleLoadingComplete = () => {
+    setIsLoading(false);
+  };
+
   return (
     <BrowserRouter>
-      <ScrollToTop />
-      <AppRoutes />
-      <Analytics />
+      {isLoading ? (
+        <LoadingScreen onLoaded={handleLoadingComplete} />
+      ) : (
+        <>
+          <ScrollToTop />
+          <AppRoutes />
+          <Analytics />
+        </>
+      )}
     </BrowserRouter>
   );
 }
