@@ -335,7 +335,7 @@ const Download = () => {
       title: "Windows",
       icon: <i className="devicon-windows8-original colored"></i>,
       description: "For Windows 10/11 (.exe)",
-      link: "/downloads/gaussian.exe",
+      link: "/downloads/gaussian-win.exe",
       checksum: "9922EE263B0390A206DA273311C16F388D7AC355365A7A34980E8E5B3020C3A3",
       requiresModal: true,
     },
